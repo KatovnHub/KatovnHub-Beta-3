@@ -1,192 +1,147 @@
---// KATOVN HUB KEY SYSTEM - FULL VERSION
---// by Katovn Team 😎🔥
-
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
-local Players = game:GetService("Players")
+
+-- =========================
+-- SERVICES
+-- =========================
 local HttpService = game:GetService("HttpService")
 
--- ==============================
+-- =========================
 -- CONFIG
--- ==============================
+-- =========================
 local KEY_URL = "https://raw.githubusercontent.com/KatovnHub/KatovnHub-Beta-3/main/keys.txt"
-local SAVE_FILE = "KatovnHub_Key.txt"
+local SAVE_FILE = "KatovnHub_Key.json"
 
--- ==============================
--- KEY FUNCTIONS
--- ==============================
-local function GetSavedKey()
-    if isfile and isfile(SAVE_FILE) then
-        return readfile(SAVE_FILE)
-    end
-    return nil
-end
-
+-- =========================
+-- SAVE / LOAD KEY
+-- =========================
 local function SaveKey(key)
-    if writefile then
-        writefile(SAVE_FILE, key)
-    end
+	if writefile then
+		writefile(SAVE_FILE, HttpService:JSONEncode({Key = key}))
+	end
 end
 
-local function CheckKeyOnline(inputKey)
-    local success, data = pcall(function()
-        return game:HttpGet(KEY_URL)
-    end)
-
-    if not success then
-        return false, "❌ Cannot connect to key server"
-    end
-
-    for key in string.gmatch(data, "[^\r\n]+") do
-        if inputKey == key then
-            return true, "✅ Valid Key"
-        end
-    end
-
-    return false, "❌ Invalid Key"
+local function LoadKey()
+	if readfile and isfile and isfile(SAVE_FILE) then
+		local data = HttpService:JSONDecode(readfile(SAVE_FILE))
+		return data.Key
+	end
+	return nil
 end
 
--- ==============================
--- LOAD MENUS
--- ==============================
+-- =========================
+-- CHECK KEY ONLINE
+-- =========================
+local function IsKeyValid(inputKey)
+	local success, result = pcall(function()
+		return game:HttpGet(KEY_URL)
+	end)
+
+	if not success then
+		return false, "Cannot connect to key server"
+	end
+
+	for key in string.gmatch(result, "[^\r\n]+") do
+		if key == inputKey then
+			return true
+		end
+	end
+
+	return false, "Invalid key"
+end
+
+-- =========================
+-- LOAD HUB
+-- =========================
 local function LoadPremium()
-    Rayfield:Destroy()
-    task.wait(0.3)
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/KatovnHub/KatovnHub-Beta-3/main/Premium.lua"))()
+	Rayfield:Destroy()
+	task.wait(0.3)
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/KatovnHub/KatovnHub-Beta-3/main/Premium.lua"))()
 end
 
-local function LoadFreemium()
-    Rayfield:Destroy()
-    task.wait(0.3)
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/KatovnHub/KatovnHub-Beta-3/main/Freemium.lua"))()
+local function LoadFree()
+	Rayfield:Destroy()
+	task.wait(0.3)
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/KatovnHub/KatovnHub-Beta-3/main/Freemium.lua"))()
 end
 
--- ==============================
--- WINDOW
--- ==============================
+-- =========================
+-- AUTO LOGIN
+-- =========================
+local savedKey = LoadKey()
+if savedKey then
+	local ok = IsKeyValid(savedKey)
+	if ok then
+		LoadPremium()
+		return
+	end
+end
+
+-- =========================
+-- UI
+-- =========================
 local Window = Rayfield:CreateWindow({
-   Name = "🔑 KatovnHub | Key System",
-   LoadingTitle = "Checking Access...",
-   LoadingSubtitle = "by Katovn Team",
-   ConfigurationSaving = { Enabled = false },
-   Theme = "Default"
+	Name = "🔑 KatovnHub | Key System",
+	LoadingTitle = "KatovnHub",
+	LoadingSubtitle = "Checking Access...",
+	ConfigurationSaving = {
+		Enabled = false
+	}
 })
 
-local KeyTab = Window:CreateTab("🗝️ Key System", 4483345998)
-KeyTab:CreateSection("🔐 Verify Access")
+local KeyTab = Window:CreateTab("🗝 Key System", 4483345998)
+KeyTab:CreateSection("Enter Premium Key")
 
-local StatusLabel = KeyTab:CreateParagraph({
-    Title = "Status",
-    Content = "⏳ Waiting for key..."
+local Status = KeyTab:CreateParagraph({
+	Title = "Status",
+	Content = "Waiting for key..."
 })
 
-local KeyInput = ""
+local InputKey = ""
 
 KeyTab:CreateInput({
-   Name = "Enter Premium Key",
-   PlaceholderText = "Paste key here...",
-   RemoveTextAfterFocusLost = false,
-   Callback = function(Text)
-       KeyInput = Text
-   end,
+	Name = "Enter Key",
+	PlaceholderText = "Paste your key here",
+	RemoveTextAfterFocusLost = false,
+	Callback = function(Text)
+		InputKey = Text
+	end,
 })
-
--- ==============================
--- AUTO CHECK SAVED KEY
--- ==============================
-task.spawn(function()
-    local saved = GetSavedKey()
-    if saved then
-        StatusLabel:Set({
-            Title = "Status",
-            Content = "🔍 Checking saved key..."
-        })
-
-        local ok, msg = CheckKeyOnline(saved)
-        task.wait(0.5)
-
-        if ok then
-            StatusLabel:Set({
-                Title = "Status",
-                Content = "✅ Auto login success!"
-            })
-            SaveKey(saved)
-            task.wait(1)
-            LoadPremium()
-        else
-            StatusLabel:Set({
-                Title = "Status",
-                Content = "❌ Saved key invalid"
-            })
-        end
-    end
-end)
-
--- ==============================
--- CHECK KEY BUTTON
--- ==============================
-KeyTab:CreateButton({
-   Name = "✅ Check Key",
-   Callback = function()
-       if KeyInput == "" then
-           Rayfield:Notify({Title="Error",Content="Enter a key first!",Duration=3})
-           return
-       end
-
-       StatusLabel:Set({
-           Title = "Status",
-           Content = "🔍 Checking key..."
-       })
-
-       local ok, msg = CheckKeyOnline(KeyInput)
-
-       if ok then
-           StatusLabel:Set({
-               Title = "Status",
-               Content = "✅ Key accepted! Loading Premium..."
-           })
-           SaveKey(KeyInput)
-           task.wait(1)
-           LoadPremium()
-       else
-           StatusLabel:Set({
-               Title = "Status",
-               Content = msg
-           })
-           Rayfield:Notify({Title="Key System",Content=msg,Duration=3})
-       end
-   end,
-})
-
--- ==============================
--- FREEMIUM BUTTON
--- ==============================
-KeyTab:CreateButton({
-   Name = "▶ Use Freemium (No Key)",
-   Callback = function()
-       StatusLabel:Set({
-           Title = "Status",
-           Content = "ℹ Loading Freemium..."
-       })
-       task.wait(0.5)
-       LoadFreemium()
-   end,
-})
-
--- ==============================
--- SUPPORT
--- ==============================
-KeyTab:CreateSection("💬 Support")
 
 KeyTab:CreateButton({
-   Name = "🔗 Copy Discord",
-   Callback = function()
-       setclipboard("https://discord.gg/uTxvVVYBwm")
-       Rayfield:Notify({Title="Copied",Content="Discord link copied!",Duration=3})
-   end,
+	Name = "✅ Check Key",
+	Callback = function()
+		Status:Set({Title = "Status", Content = "Checking key..."})
+
+		local valid, msg = IsKeyValid(InputKey)
+
+		if valid then
+			Status:Set({Title = "Status", Content = "✅ Premium Activated"})
+			SaveKey(InputKey)
+			task.wait(0.5)
+			LoadPremium()
+		else
+			Status:Set({Title = "Status", Content = "❌ "..msg})
+		end
+	end,
 })
 
-Rayfield:Notify({
-   Title = "KatovnHub",
-   Content = "Key System Loaded!",
-   Duration = 4
+KeyTab:CreateButton({
+	Name = "▶ Use Freemium",
+	Callback = function()
+		LoadFree()
+	end,
+})
+
+KeyTab:CreateSection("Support")
+
+KeyTab:CreateButton({
+	Name = "💬 Join Discord (Get Key)",
+	Callback = function()
+		setclipboard("https://discord.gg/WrnvdHtQXn")
+		Rayfield:Notify({
+			Title = "Discord",
+			Content = "Link copied to clipboard!",
+			Duration = 3
+		})
+	end,
 })
