@@ -1,16 +1,19 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- ==============================
 -- WINDOW
 -- ==============================
 local Window = Rayfield:CreateWindow({
    Name = "📂 KatovnHub | Freemium",
-   Icon = 115055477301086, -- ✅ LOGO FREE (đúng: Icon)
+   Icon = 115055477301086, -- LOGO FREE
    LoadingTitle = "Katovn Script Hub",
    LoadingSubtitle = "by Katovn Team",
    Theme = "Default",
+
    ConfigurationSaving = {
-      Enabled = false
+      Enabled = true,
+      FolderName = "KatovnHub",
+      FileName = "Freemium"
    }
 })
 
@@ -21,11 +24,11 @@ local TechTab = Window:CreateTab("⚡ Tech", 4483345998)
 TechTab:CreateSection("⚔️ Combat Assist")
 
 TechTab:CreateButton({
-   Name = "🔥 Supa Tech V3",
+   Name = "🔥 Supa Tech V3 (Coming Soon)",
    Callback = function()
       Rayfield:Notify({
-         Title = "Info",
-         Content = "Coming soon bro 😎",
+         Title = "KatovnHub",
+         Content = "Tech script will be added soon 😎",
          Duration = 3
       })
    end
@@ -55,11 +58,11 @@ local TSBTab = Window:CreateTab("🎯 Script TSB", 4483345998)
 TSBTab:CreateSection("👊 The Strongest Battlegrounds")
 
 TSBTab:CreateButton({
-   Name = "💎 Load TSB Main",
+   Name = "💎 Load TSB Script (Coming Soon)",
    Callback = function()
       Rayfield:Notify({
          Title = "TSB",
-         Content = "Paste your TSB script here bro",
+         Content = "TSB script not added yet bro",
          Duration = 3
       })
    end
@@ -99,13 +102,13 @@ DiscordTab:CreateButton({
 })
 
 -- ==============================
--- SETTING TAB
+-- SETTINGS TAB
 -- ==============================
 local SettingTab = Window:CreateTab("⚙️ Setting", 4483345998)
 SettingTab:CreateSection("General")
 
 SettingTab:CreateButton({
-   Name = "Rejoin",
+   Name = "Rejoin Server",
    Callback = function()
       game:GetService("TeleportService"):Teleport(
          game.PlaceId,
@@ -121,7 +124,7 @@ SettingTab:CreateSection("Server Info")
 
 local infoLabel = SettingTab:CreateParagraph({
    Title = "Details",
-   Content = "Connecting..."
+   Content = "Loading..."
 })
 
 task.spawn(function()
@@ -131,16 +134,12 @@ task.spawn(function()
             game:GetService("Stats")
             .Network.ServerStatsItem["Data Ping"]:GetValue()
          )
-         local fps = math.floor(
-            game:GetService("Stats")
-            .Workspace.Heartbeat:GetValue()
-         )
 
          infoLabel:Set({
             Title = "📡 Server Info",
             Content = string.format(
-               "🌍 PlaceId: %d\n⚡ Ping: %d ms\n🔥 FPS: %d",
-               game.PlaceId, ping, fps
+               "🌍 PlaceId: %d\n⚡ Ping: %d ms",
+               game.PlaceId, ping
             )
          })
       end)
@@ -148,11 +147,10 @@ task.spawn(function()
 end)
 
 -- ==============================
--- NOTIFY
+-- LOADED NOTIFY
 -- ==============================
 Rayfield:Notify({
    Title = "KatovnHub",
    Content = "Freemium Loaded Successfully!",
-   Duration = 5,
-   Image = 115055477301086
+   Duration = 5
 })
