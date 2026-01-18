@@ -1,11 +1,15 @@
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 local HttpService = game:GetService("HttpService")
 
--- Config
+-- ==============================
+-- CONFIG
+-- ==============================
 local KEY_URL = "https://raw.githubusercontent.com/KatovnHub/KatovnHub-Beta-3/main/keys.txt"
 local SAVE_FILE = "KatovnHub_Key.json"
 
--- Save / Load Key
+-- ==============================
+-- SAVE / LOAD KEY
+-- ==============================
 local function SaveKey(key)
     if writefile then
         writefile(SAVE_FILE, HttpService:JSONEncode({Key = key}))
@@ -20,11 +24,14 @@ local function LoadKey()
     return nil
 end
 
--- Online key check
+-- ==============================
+-- ONLINE KEY CHECK
+-- ==============================
 local function IsKeyValid(inputKey)
     local success, result = pcall(function()
         return game:HttpGet(KEY_URL)
     end)
+
     if not success then
         return false, "Cannot connect to key server"
     end
@@ -34,23 +41,41 @@ local function IsKeyValid(inputKey)
             return true
         end
     end
+
     return false, "Invalid key"
 end
 
--- Load menus
+-- ==============================
+-- LOAD MENUS
+-- ==============================
+local function SafeLoad(url)
+    local ok, err = pcall(function()
+        loadstring(game:HttpGet(url))()
+    end)
+    if not ok then
+        Rayfield:Notify({
+            Title = "Load Error",
+            Content = tostring(err),
+            Duration = 5
+        })
+    end
+end
+
 local function LoadPremium()
     Rayfield:Destroy()
-    task.wait(0.5)
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/KatovnHub/KatovnHub-Beta-3/main/Premium.lua"))()
+    task.wait(0.4)
+    SafeLoad("https://raw.githubusercontent.com/KatovnHub/KatovnHub-Beta-3/main/Premium.lua")
 end
 
 local function LoadFree()
     Rayfield:Destroy()
-    task.wait(0.5)
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/KatovnHub/KatovnHub-Beta-3/main/Freemium.lua"))()
+    task.wait(0.4)
+    SafeLoad("https://raw.githubusercontent.com/KatovnHub/KatovnHub-Beta-3/main/Freemium.lua")
 end
 
--- Auto login if saved key valid
+-- ==============================
+-- AUTO LOGIN
+-- ==============================
 local savedKey = LoadKey()
 if savedKey then
     local ok = IsKeyValid(savedKey)
@@ -60,19 +85,19 @@ if savedKey then
     end
 end
 
--- UI Key System
+-- ==============================
+-- UI KEY SYSTEM
+-- ==============================
 local Window = Rayfield:CreateWindow({
     Name = "🔑 KatovnHub | Key System",
-    Icon = 115055477301086, -- logo của bro
+    Icon = 115055477301086,
     LoadingTitle = "KatovnHub",
     LoadingSubtitle = "Enter your key",
     Theme = "Default",
     ConfigurationSaving = { Enabled = false }
 })
 
--- Key tab
 local KeyTab = Window:CreateTab("🗝 Key System", 4483345998)
-
 KeyTab:CreateSection("Verify Premium Key")
 
 local Status = KeyTab:CreateParagraph({
@@ -87,14 +112,20 @@ KeyTab:CreateInput({
     PlaceholderText = "Paste your key here",
     RemoveTextAfterFocusLost = false,
     Callback = function(text)
-        InputKey = text
+        InputKey = tostring(text):gsub("^%s*(.-)%s*$", "%1") -- trim spaces
     end,
 })
 
 KeyTab:CreateButton({
     Name = "✅ Check Key",
     Callback = function()
+        if InputKey == "" then
+            Status:Set({Title="Status",Content="❗ Please enter a key"})
+            return
+        end
+
         Status:Set({Title="Status",Content="Checking key..."})
+
         local valid, msg = IsKeyValid(InputKey)
         if valid then
             Status:Set({Title="Status",Content="✅ Premium Activated"})
@@ -114,8 +145,11 @@ KeyTab:CreateButton({
     end,
 })
 
--- Support
+-- ==============================
+-- SUPPORT
+-- ==============================
 KeyTab:CreateSection("Support")
+
 KeyTab:CreateButton({
     Name = "💬 Join Discord (Get Key)",
     Callback = function()
