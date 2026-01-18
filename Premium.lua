@@ -1,16 +1,19 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- ==============================
--- WINDOW (ĐÚNG CHUẨN)
+-- WINDOW
 -- ==============================
 local Window = Rayfield:CreateWindow({
    Name = "👑 KatovnHub | PREMIUM VIP 👑",
-   Icon = 95214547594099, -- ✅ LOGO PREMIUM (đúng: Icon)
+   Icon = 95214547594099, -- LOGO PREMIUM
    LoadingTitle = "🌟 Katovn Premium System 🌟",
    LoadingSubtitle = "High-End Experience",
    Theme = "AmberGlow",
+
    ConfigurationSaving = {
-      Enabled = false
+      Enabled = true,
+      FolderName = "KatovnHub",
+      FileName = "Premium"
    }
 })
 
@@ -24,8 +27,8 @@ TechTab:CreateButton({
    Name = "🔥 Supa Tech V3",
    Callback = function()
       Rayfield:Notify({
-         Title = "Info",
-         Content = "Coming soon bro 😎",
+         Title = "KatovnHub",
+         Content = "Tech script coming soon 😎",
          Duration = 3
       })
    end
@@ -40,7 +43,7 @@ FpsTab:CreateSection("⚡ Performance")
 FpsTab:CreateButton({
    Name = "Boost FPS",
    Callback = function()
-      for _,v in pairs(workspace:GetDescendants()) do
+      for _, v in ipairs(workspace:GetDescendants()) do
          if v:IsA("BasePart") then
             v.Material = Enum.Material.SmoothPlastic
             v.Reflectance = 0
@@ -48,11 +51,15 @@ FpsTab:CreateButton({
             v:Destroy()
          end
       end
-      game:GetService("Lighting"):ClearAllChildren()
+
+      local Lighting = game:GetService("Lighting")
+      for _, v in ipairs(Lighting:GetChildren()) do
+         v:Destroy()
+      end
 
       Rayfield:Notify({
          Title = "FPS Booster",
-         Content = "Boost applied!",
+         Content = "Boost applied successfully!",
          Duration = 3
       })
    end
@@ -69,7 +76,7 @@ MoveTab:CreateButton({
    Callback = function()
       Rayfield:Notify({
          Title = "Moveset",
-         Content = "Add script here bro 😏",
+         Content = "Moveset script not added yet 😏",
          Duration = 3
       })
    end
@@ -86,7 +93,7 @@ TrollTab:CreateButton({
    Callback = function()
       Rayfield:Notify({
          Title = "LOL",
-         Content = "Just kidding bro 😂",
+         Content = "Relax bro, just trolling 😂",
          Duration = 3
       })
    end
@@ -103,7 +110,7 @@ TSBTab:CreateButton({
    Callback = function()
       Rayfield:Notify({
          Title = "TSB",
-         Content = "Paste TSB script here",
+         Content = "TSB script will be added soon",
          Duration = 3
       })
    end
@@ -131,8 +138,9 @@ AntiTab:CreateButton({
 
       AntiAFKEnabled = true
       local vu = game:GetService("VirtualUser")
+      local Players = game:GetService("Players")
 
-      game:GetService("Players").LocalPlayer.Idled:Connect(function()
+      Players.LocalPlayer.Idled:Connect(function()
          vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
          task.wait(1)
          vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
@@ -140,7 +148,7 @@ AntiTab:CreateButton({
 
       Rayfield:Notify({
          Title = "Anti AFK",
-         Content = "Enabled!",
+         Content = "Anti AFK enabled!",
          Duration = 3
       })
    end
@@ -157,15 +165,15 @@ DiscordTab:CreateButton({
    Callback = function()
       setclipboard("https://discord.gg/WrnvdHtQXn")
       Rayfield:Notify({
-         Title = "Success",
-         Content = "Discord copied!",
+         Title = "Discord",
+         Content = "Invite link copied!",
          Duration = 3
       })
    end
 })
 
 -- ==============================
--- SETTING TAB
+-- SETTINGS TAB
 -- ==============================
 local SettingTab = Window:CreateTab("⚙️ Setting", 4483345998)
 SettingTab:CreateSection("General")
@@ -173,7 +181,10 @@ SettingTab:CreateSection("General")
 SettingTab:CreateButton({
    Name = "Rejoin Server",
    Callback = function()
-      game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+      game:GetService("TeleportService"):Teleport(
+         game.PlaceId,
+         game.Players.LocalPlayer
+      )
    end
 })
 
@@ -181,22 +192,23 @@ SettingTab:CreateButton({
 -- SERVER INFO
 -- ==============================
 SettingTab:CreateSection("Server Info")
+
 local infoLabel = SettingTab:CreateParagraph({
    Title = "Details",
-   Content = "Connecting..."
+   Content = "Loading..."
 })
 
 task.spawn(function()
    while task.wait(1) do
       pcall(function()
-         local ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
-         local fps = math.floor(game:GetService("Stats").Workspace.Heartbeat:GetValue())
+         local Stats = game:GetService("Stats")
+         local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
 
          infoLabel:Set({
             Title = "📡 Server Info",
             Content = string.format(
-               "⚡ Ping: %d ms\n🔥 FPS: %d\n🌍 PlaceId: %d",
-               ping, fps, game.PlaceId
+               "🌍 PlaceId: %d\n⚡ Ping: %d ms",
+               game.PlaceId, ping
             )
          })
       end)
@@ -204,11 +216,10 @@ task.spawn(function()
 end)
 
 -- ==============================
--- NOTIFY
+-- LOADED NOTIFY
 -- ==============================
 Rayfield:Notify({
-   Title = "👑 KATOVN PREMIUM 👑",
+   Title = "👑 KatovnHub Premium",
    Content = "Menu Loaded Successfully!",
-   Duration = 5,
-   Image = 95214547594099
+   Duration = 5
 })
